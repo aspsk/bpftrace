@@ -151,6 +151,9 @@ void SemanticAnalyser::visit(Builtin &builtin)
       case BPF_PROG_TYPE_KPROBE:
         builtin.type.cast_type = "struct pt_regs";
         break;
+      case BPF_PROG_TYPE_RAW_TRACEPOINT:
+        builtin.type.cast_type = "struct bpf_raw_tracepoint_args";
+        break;
       case BPF_PROG_TYPE_TRACEPOINT:
         error("Use args instead of ctx in tracepoint", builtin.loc);
         break;
@@ -238,6 +241,7 @@ void SemanticAnalyser::visit(Builtin &builtin)
       ProbeType type = probetype(attach_point->provider);
       if (type != ProbeType::kprobe &&
           type != ProbeType::uprobe &&
+          type != ProbeType::rawtracepoint &&
           type != ProbeType::usdt)
         ERR("The " << builtin.ident << " builtin can only be used with "
                    << "'kprobes', 'uprobes' and 'usdt' probes",
@@ -1628,6 +1632,10 @@ void SemanticAnalyser::visit(AttachPoint &ap)
   else if (ap.provider == "tracepoint") {
     if (ap.target == "" || ap.func == "")
       error("tracepoint probe must have a target", ap.loc);
+  }
+  else if (ap.provider == "rawtracepoint") {
+    if (ap.func == "")
+      error("rawtracepoint probe must have a func", ap.loc);
   }
   else if (ap.provider == "profile") {
     if (ap.target == "")

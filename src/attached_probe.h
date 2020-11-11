@@ -36,6 +36,7 @@ private:
   void attach_uprobe(bool safe_mode);
   void attach_usdt(int pid);
   void attach_tracepoint();
+  void attach_rawtracepoint();
   void attach_profile();
   void attach_interval();
   void attach_software();

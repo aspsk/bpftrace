@@ -102,7 +102,6 @@ int AttachPointParser::parse_attachpoint(AttachPoint &ap)
   }
 
   ap_->provider = probetypeName(parts_.front());
-
   switch (probetype(parts_.front()))
   {
     case ProbeType::kprobe:
@@ -117,6 +116,8 @@ int AttachPointParser::parse_attachpoint(AttachPoint &ap)
       return usdt_parser();
     case ProbeType::tracepoint:
       return tracepoint_parser();
+    case ProbeType::rawtracepoint:
+      return rawtracepoint_parser();
     case ProbeType::profile:
       return profile_parser();
     case ProbeType::interval:
@@ -353,6 +354,22 @@ int AttachPointParser::tracepoint_parser()
 
   if (ap_->target.find('*') != std::string::npos ||
       ap_->func.find('*') != std::string::npos)
+    ap_->need_expansion = true;
+
+  return 0;
+}
+
+int AttachPointParser::rawtracepoint_parser()
+{
+  if (parts_.size() != 2)
+  {
+    errs_ << ap_->provider << " probe type requires 1 argument" << std::endl;
+    return 1;
+  }
+
+  ap_->func = parts_[1];
+
+  if (ap_->func.find('*') != std::string::npos)
     ap_->need_expansion = true;
 
   return 0;

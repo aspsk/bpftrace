@@ -243,6 +243,15 @@ std::set<std::string> BPFtrace::find_wildcard_matches(
       func = attach_point.func;
       break;
     }
+    // XXX: we need to remove ':'
+    case ProbeType::rawtracepoint:
+    {
+      symbol_stream = get_symbols_from_file(
+          "/sys/kernel/debug/tracing/available_events");
+      prefix = "";
+      func = attach_point.func;
+      break;
+    }
     case ProbeType::usdt:
     {
       symbol_stream = get_symbols_from_usdt(pid_, attach_point.target);
@@ -768,6 +777,7 @@ bool attach_reverse(const Probe &p)
       return true;
     case ProbeType::kretprobe:
     case ProbeType::tracepoint:
+    case ProbeType::rawtracepoint:
     case ProbeType::profile:
     case ProbeType::interval:
     case ProbeType::watchpoint:

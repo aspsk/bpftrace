@@ -143,17 +143,18 @@ std::string probetypeName(ProbeType t)
 {
    switch (t)
   {
-    case ProbeType::invalid:     return "invalid";     break;
-    case ProbeType::kprobe:      return "kprobe";      break;
-    case ProbeType::kretprobe:   return "kretprobe";   break;
-    case ProbeType::uprobe:      return "uprobe";      break;
-    case ProbeType::uretprobe:   return "uretprobe";   break;
-    case ProbeType::usdt:        return "usdt";        break;
-    case ProbeType::tracepoint:  return "tracepoint";  break;
-    case ProbeType::profile:     return "profile";     break;
-    case ProbeType::interval:    return "interval";    break;
-    case ProbeType::software:    return "software";    break;
-    case ProbeType::hardware:    return "hardware";    break;
+    case ProbeType::invalid:       return "invalid";       break;
+    case ProbeType::kprobe:        return "kprobe";        break;
+    case ProbeType::kretprobe:     return "kretprobe";     break;
+    case ProbeType::uprobe:        return "uprobe";        break;
+    case ProbeType::uretprobe:     return "uretprobe";     break;
+    case ProbeType::usdt:          return "usdt";          break;
+    case ProbeType::tracepoint:    return "tracepoint";    break;
+    case ProbeType::profile:       return "profile";       break;
+    case ProbeType::interval:      return "interval";      break;
+    case ProbeType::software:      return "software";      break;
+    case ProbeType::hardware:      return "hardware";      break;
+    case ProbeType::rawtracepoint: return "rawtracepoint"; break;
     default:
       std::cerr << "probe type not found" << std::endl;
       abort();

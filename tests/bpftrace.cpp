@@ -5,6 +5,8 @@
 #include "bpftrace.h"
 #include "mocks.h"
 
+// TBD: rawtracepoint
+
 namespace bpftrace {
 namespace test {
 namespace bpftrace {

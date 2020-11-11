@@ -100,6 +100,31 @@ void print_tracepoint_args(const std::string &category, const std::string &event
   }
 }
 
+static bool found_tracepoint(const std::string &cat, const std::string &event, bool search, std::regex re)
+{
+      auto probe = "tracepoint:" + cat + ":" + event;
+
+      if (search && search_probe(probe, re))
+          return false;
+
+      std::cout << probe << std::endl;
+      if (bt_verbose)
+        print_tracepoint_args(cat, event);
+      return true;
+}
+
+static bool found_raw_tracepoint(const std::string &event, bool search, std::regex re)
+{
+      auto probe = "rawtracepoint:" + event;
+
+      if (search && search_probe(probe, re))
+          return false;
+
+      std::cout << probe << std::endl;
+
+      return true;
+}
+
 void list_probes(const BPFtrace &bpftrace, const std::string &search_input)
 {
   std::string search = search_input;
@@ -240,17 +265,12 @@ void list_probes(const BPFtrace &bpftrace, const std::string &search_input)
     {
       if (event == "." || event == ".." || event == "enable" || event == "filter")
         continue;
-      probe = "tracepoint:" + cat + ":" + event;
 
-      if (!search.empty())
-      {
-        if (search_probe(probe, re))
-          continue;
-      }
+      //if (found_tracepoint(cat, event, search.empty(), re)) continue;
 
-      std::cout << probe << std::endl;
-      if (bt_verbose)
-        print_tracepoint_args(cat, event);
+      if (found_raw_tracepoint(event, !search.empty(), re))
+        continue;
+
     }
   }
 

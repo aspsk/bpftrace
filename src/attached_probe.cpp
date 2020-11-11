@@ -61,6 +61,7 @@ bpf_prog_type progtype(ProbeType t)
     case ProbeType::uretprobe:  return BPF_PROG_TYPE_KPROBE; break;
     case ProbeType::usdt:       return BPF_PROG_TYPE_KPROBE; break;
     case ProbeType::tracepoint: return BPF_PROG_TYPE_TRACEPOINT; break;
+    case ProbeType::rawtracepoint: return BPF_PROG_TYPE_RAW_TRACEPOINT; break;
     case ProbeType::profile:      return BPF_PROG_TYPE_PERF_EVENT; break;
     case ProbeType::interval:      return BPF_PROG_TYPE_PERF_EVENT; break;
     case ProbeType::software:   return BPF_PROG_TYPE_PERF_EVENT; break;
@@ -115,6 +116,9 @@ AttachedProbe::AttachedProbe(Probe &probe, std::tuple<uint8_t *, uintptr_t> func
       break;
     case ProbeType::tracepoint:
       attach_tracepoint();
+      break;
+    case ProbeType::rawtracepoint:
+      attach_rawtracepoint();
       break;
     case ProbeType::profile:
       attach_profile();
@@ -180,6 +184,9 @@ AttachedProbe::~AttachedProbe()
     case ProbeType::tracepoint:
       err = bpf_detach_tracepoint(probe_.path.c_str(), eventname().c_str());
       break;
+    case ProbeType::rawtracepoint:
+      // err = bpf_detach_raw_tracepoint(eventname().c_str());
+      break;
     case ProbeType::profile:
     case ProbeType::interval:
     case ProbeType::software:
@@ -225,6 +232,8 @@ std::string AttachedProbe::eventname() const
       offset_str << std::hex << offset_;
       return eventprefix() + sanitise(probe_.path) + "_" + offset_str.str() + index_str;
     case ProbeType::tracepoint:
+      return probe_.attach_point;
+    case ProbeType::rawtracepoint:
       return probe_.attach_point;
     default:
       std::cerr << "invalid eventname probe \"" << probetypeName(probe_.type) << "\"" << std::endl;
@@ -791,6 +800,19 @@ void AttachedProbe::attach_tracepoint()
     throw std::runtime_error("Error attaching probe: " + probe_.name);
 
   perf_event_fds_.push_back(perf_event_fd);
+}
+
+void AttachedProbe::attach_rawtracepoint()
+{
+  int tp_fd;
+  char *tp_name;
+
+  tp_name = strdup(eventname().c_str());
+  tp_fd = bpf_attach_raw_tracepoint(progfd_, tp_name);
+  free(tp_name);
+
+  if (tp_fd < 0)
+    throw std::runtime_error("Error attaching probe: " + probe_.name);
 }
 
 void AttachedProbe::attach_profile()

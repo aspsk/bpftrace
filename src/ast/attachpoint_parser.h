@@ -26,6 +26,7 @@ private:
   int uretprobe_parser();
   int usdt_parser();
   int tracepoint_parser();
+  int rawtracepoint_parser();
   int profile_parser();
   int interval_parser();
   int software_parser();

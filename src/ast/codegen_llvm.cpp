@@ -178,7 +178,10 @@ void CodegenLLVM::visit(Builtin &builtin)
                                           arg_num, builtin, bpftrace_.pid_);
         return;
       }
-      offset = arch::arg_offset(arg_num);
+      if (probetype(current_attach_point_->provider) == ProbeType::rawtracepoint)
+          offset = arg_num;
+      else
+          offset = arch::arg_offset(arg_num);
     }
 
     Value *ctx = b_.CreatePointerCast(ctx_, b_.getInt64Ty()->getPointerTo());
